@@ -70,7 +70,7 @@ function movieThis() {
 function concertThis() {
 
 
-    var queryUrl = "https://rest.bandsintown.com/artists/" + content + "/events?app_id=8fb65637e592547afe5889341ee4cf88"
+    var queryUrl = "https://rest.bandsintown.com/artists/" + content + "/events?app_id=codingbootcamp"
 
     request(queryUrl, function (err, response, body) {
         if (!err && response.statusCode === 200) {
