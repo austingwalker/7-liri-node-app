@@ -2,6 +2,7 @@ var dotenv = require("dotenv");
 var Spotify = require('node-spotify-api');
 var request = require("request");
 var chalk = require("chalk");
+var fs = require("fs");
 
 dotenv.config();
 
@@ -17,7 +18,31 @@ for(var i = 4; i < process.argv.length; i++){
     content += "+" + process.argv[i];
 }
 
-if(command === "movie-this"){
+switch (command){
+    case "movie-this":
+    movieThis();
+    break;
+
+    case "concert-this":
+    concertThis();
+    break;
+
+    case "spotify-this-song":
+    spotifyThis();
+    break
+
+    case "do-what-it-says":
+    doWhatItSays();
+    break;
+
+    default:
+    console.log("I don't know how to do that");
+    break;
+
+
+}
+
+function movieThis(){
 
     var queryUrl = "http://www.omdbapi.com/?t=" + content + "&y=&plot=short&apikey=trilogy";
 
@@ -39,10 +64,12 @@ if(command === "movie-this"){
 
 }
 
-if(command === "concert-this"){
+
+//********** Need an api key **********  */
+function concertThis(){
 
 
-    var queryUrl = "https://rest.bandsintown.com/artists/" + content + "/events?app_id=codingbootcamp"
+    var queryUrl = "https://rest.bandsintown.com/artists/" + content + "/events?app_id=*NEEDKEY*"
 
     console.log(queryUrl);
     
@@ -53,7 +80,9 @@ if(command === "concert-this"){
             var jsonData = JSON.parse(body);
 
 
-            console.log(jsonData);
+            console.log(jsonData.venue);
+            console.log(jsonData.address);
+            console.log(jsonData.date);
             
         }
     })
@@ -61,19 +90,55 @@ if(command === "concert-this"){
 }
 
 
-if(command === "spotify-this-song"){
+function spotifyThis(){
 
-    spotify.search({ type: 'track', query: content }, function(err, data) {
+    spotify.search({ type: 'track', limit: '3', query: content }, function(err, data) {
         if (err) {
           return console.log('Error occurred: ' + err);
+
+          
         }
-       
-      console.log(JSON.stringify(data, null, 2)); 
+
+        var songs = data.tracks.items;
+
+        for (var i = 0; i < songs.length; i++) {
+          
+          console.log("\n")
+          console.log(chalk.black.bgCyan("Artist:") + " " + songs[i].album.artists[0].name);
+          console.log(chalk.black.bgCyan("Song name:") + " " + " "  + songs[i].name);
+          console.log(chalk.black.bgCyan("Preview song:") + " " + songs[i].preview_url);
+          console.log(chalk.black.bgCyan("Album:") + " " + songs[i].album.name);     
+          console.log("-----------------------------------");
+        }
+
+        
+
+   
+    
       });
 
 }
 
-if(command === "do-what-it-says"){
+function doWhatItSays(){
+
+    fs.readFile("random.txt", "utf8", function(err, data){
+        if (err){
+            return console.log(err);
+        }
+
+        var paramSong = data;
+
+       var parsedData = paramSong.split(",");
+
+       command2 = parsedData[0];
+       content2 = parsedData[1];
+
+       command = command2;
+       content = content2
+
+       spotifyThis();
+
+    })
 
 }
 
